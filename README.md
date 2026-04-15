@@ -47,20 +47,19 @@ uv run uvicorn app.main:app --reload --port 8011   # or ./start.sh
 `postgres://proc2:proc2@localhost:5433/proc2?sslmode=disable`
 
 
-## open a file in the editor
-`cursor <file>`
-- do this when you reference a file that the user needs to edit
-
-
-## Context for next session
+## Context for Claudes
 
 - Built from scratch — **not** reusing annal or any wizardry code.
 - Design intentionally deferred. Current approach: get the thinnest possible
   frontend → backend → DB slice working, *then* design the data model.
 - Source brief + glossary: `~/responses/proc2-index.md`
 - User notes: top block of `~/content/proc/proc`
-- Operator prefers walking through changes one step at a time
 - Install dependencies yourself
 
+### open a file in the editor
+`cursor <file>`
+- do this when you reference a file that the user needs to edit
 
-# Appendended notes
+
+## TODO
+* what does lifespan mean in this context?
