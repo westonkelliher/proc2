@@ -9,4 +9,4 @@ services:
     ports:
       - 5433:5432
     volumes:
-      - proc2-db-data:/var/lib/postgresql/data
+      - ./pgdata:/var/lib/postgresql/data

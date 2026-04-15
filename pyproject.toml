@@ -1,0 +1,11 @@
+[project]
+name = "proc2"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.135.3",
+    "jinja2>=3.1.6",
+    "psycopg[binary]>=3.3.3",
+    "python-dotenv>=1.2.2",
+    "uvicorn>=0.44.0",
+]
