@@ -32,8 +32,8 @@ proc2/
         └── 20260415014419_create_tasks.sql
 ```
 
-## Dev loop
 
+## Dev loop
 ```sh
 # start postgres
 sudo docker compose up -d
@@ -59,6 +59,11 @@ uv run uvicorn app.main:app --reload --port 8011   # or ./start.sh
 ### open a file in the editor
 `cursor <file>`
 - do this when you reference a file that the user needs to edit
+
+### UI priorities
+- OKLAB optimized colors with standard UX color theory.
+- design for mobile and desktop use.
+- low friction especially for mobile
 
 
 ## TODO

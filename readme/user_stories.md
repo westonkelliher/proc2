@@ -8,7 +8,6 @@
 
 ## Communication of information
 - always prefer communicating information via shapes and/or colors as opposed to via text.
-  - e.g. 
 - sometimes text+shape&|color is appropriate
 
 
