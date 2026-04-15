@@ -14,9 +14,9 @@ if not DATABASE_URL:
 # lifespan context manager that connects on enter and closes on exit
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    app.state.conn = psycopg2.connect(DATABASE_URL)
+    app.state.conn = await psycopg.AsyncConnection.connect(DATABASE_URL)
     yield
-    app.state.conn.close()
+    await app.state.conn.close()
 
 app = FastAPI(lifespan=lifespan)
 
@@ -24,5 +24,5 @@ app = FastAPI(lifespan=lifespan)
 async def index():
     async with app.state.conn.cursor() as cur:
         await cur.execute("select now()")
-        result = cur.fetchone()
+        result = await cur.fetchone()
         return {"db_time": result[0]}
