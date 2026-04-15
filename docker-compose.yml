@@ -1,0 +1,12 @@
+services:
+  db:
+    image: postgres:16
+    container_name: proc2-db
+    environment:
+      POSTGRES_USER: proc2
+      POSTGRES_PASSWORD: proc2
+      POSTGRES_DB: proc2
+    ports:
+      - 5433:5432
+    volumes:
+      - proc2-db-data:/var/lib/postgresql/data
