@@ -1,7 +1,28 @@
+import os
+from contextlib import asynccontextmanager
+
+import psycopg
+from dotenv import load_dotenv
 from fastapi import FastAPI
 
-app = FastAPI()
+load_dotenv()
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise ValueError("DATABASE_URL is not set")
+
+# lifespan context manager that connects on enter and closes on exit
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    app.state.conn = psycopg2.connect(DATABASE_URL)
+    yield
+    app.state.conn.close()
+
+app = FastAPI(lifespan=lifespan)
 
 @app.get("/")
-def index():
-    return {"hello": "proc2 world"}
+async def index():
+    async with app.state.conn.cursor() as cur:
+        await cur.execute("select now()")
+        result = cur.fetchone()
+        return {"db_time": result[0]}
