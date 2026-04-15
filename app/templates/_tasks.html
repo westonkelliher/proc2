@@ -1,10 +1,7 @@
-<ul id="tasks">
+<div id="tasks-wrap">
   {% for t in tasks %}
-  <li>
-    <strong>{{ t.title }}</strong>
-    {% if t.description %}<span class="desc">— {{ t.description }}</span>{% endif %}
-  </li>
+    {% include "_task.html" %}
   {% else %}
-  <li class="desc">no tasks yet</li>
+    <p class="small">no tasks in <em>{{ current_list.name }}</em>.</p>
   {% endfor %}
-</ul>
+</div>

@@ -1,0 +1,41 @@
+<div class="task {{ t.stage }}" id="task-{{ t.id }}">
+  <div class="row1">
+    <span class="desc">{{ t.description }}</span>
+
+    <form class="inline" hx-post="/tasks/{{ t.id }}/stage" hx-target="#tasks-wrap" hx-swap="outerHTML">
+      <select name="stage" onchange="this.form.requestSubmit()">
+        {% for s in STAGES %}
+          <option value="{{ s }}" {% if s == t.stage %}selected{% endif %}>{{ s }}</option>
+        {% endfor %}
+      </select>
+    </form>
+
+    <form class="inline" hx-post="/tasks/{{ t.id }}/arrange" hx-target="#tasks-wrap" hx-swap="outerHTML">
+      <input type="hidden" name="direction" value="up">
+      <button title="move up">↑</button>
+    </form>
+    <form class="inline" hx-post="/tasks/{{ t.id }}/arrange" hx-target="#tasks-wrap" hx-swap="outerHTML">
+      <input type="hidden" name="direction" value="down">
+      <button title="move down">↓</button>
+    </form>
+
+    <button hx-get="/tasks/{{ t.id }}/edit" hx-target="#task-{{ t.id }}" hx-swap="outerHTML">edit</button>
+    <a href="/tasks/{{ t.id }}/notes"><button type="button">notes{% if t.notes %} •{% endif %}</button></a>
+  </div>
+
+  <div class="meta">
+    <span>priority: <span class="pri-{{ t.priority }}">{{ t.priority }}</span></span>
+    {% if t.project %}<span>project: <em>{{ t.project }}</em></span>{% endif %}
+
+    <form class="inline" hx-post="/tasks/{{ t.id }}/move" hx-target="#tasks-wrap" hx-swap="outerHTML">
+      <label>move to:
+        <select name="list" onchange="this.form.requestSubmit()">
+          <option value="">—</option>
+          {% for l in lists %}
+            {% if l.name != current_list.name %}<option value="{{ l.name }}">{{ l.name }}</option>{% endif %}
+          {% endfor %}
+        </select>
+      </label>
+    </form>
+  </div>
+</div>

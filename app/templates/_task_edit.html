@@ -1,0 +1,13 @@
+<div class="task" id="task-{{ t.id }}">
+  <form hx-post="/tasks/{{ t.id }}/edit" hx-target="#tasks-wrap" hx-swap="outerHTML">
+    <input class="grow" type="text" name="description" value="{{ t.description }}" required>
+    <select name="priority">
+      {% for p in PRIORITIES %}
+        <option value="{{ p }}" {% if p == t.priority %}selected{% endif %}>{{ p }}</option>
+      {% endfor %}
+    </select>
+    <input type="text" name="project" value="{{ t.project }}" placeholder="project">
+    <button>save</button>
+    <button type="button" hx-get="/tasks/{{ t.id }}/row" hx-target="#task-{{ t.id }}" hx-swap="outerHTML">cancel</button>
+  </form>
+</div>

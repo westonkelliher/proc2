@@ -1,25 +1,68 @@
 <!doctype html>
 <html>
 <head>
-  <title>proc2</title>
+  <title>proc2 — {{ current_list.name }}</title>
   <script src="https://unpkg.com/htmx.org@2.0.3"></script>
   <style>
-    body { font-family: system-ui, sans-serif; max-width: 640px; margin: 2rem auto; padding: 0 1rem; }
-    ul { padding-left: 1.2rem; }
-    li { margin: 0.25rem 0; }
-    .desc { color: #666; font-size: 0.9em; }
-    form { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
-    input[type=text] { flex: 1; padding: 0.4rem; }
-    button { padding: 0.4rem 0.8rem; }
+    body { font-family: system-ui, sans-serif; max-width: 860px; margin: 2rem auto; padding: 0 1rem; color: #222; }
+    h1 { margin-bottom: 0.2rem; }
+    .topbar { display: flex; gap: 1rem; align-items: baseline; flex-wrap: wrap; margin-bottom: 1rem; }
+    .lists a { margin-right: 0.5rem; text-decoration: none; color: #0366d6; }
+    .lists a.active { font-weight: bold; color: #000; }
+    form { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    form.inline { display: inline-flex; gap: 0.3rem; }
+    input[type=text], select, textarea { padding: 0.35rem; font: inherit; }
+    input.grow { flex: 1; min-width: 200px; }
+    button { padding: 0.35rem 0.7rem; font: inherit; cursor: pointer; }
+    .task { border: 1px solid #ddd; border-radius: 4px; padding: 0.6rem 0.8rem; margin: 0.4rem 0; background: #fafafa; }
+    .task.done { opacity: 0.55; text-decoration: line-through; }
+    .task.cancelled { opacity: 0.4; text-decoration: line-through; }
+    .task.in-progress { background: #fff7d6; }
+    .task.tabled { background: #eee; }
+    .task .row1 { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+    .task .desc { flex: 1; min-width: 240px; font-weight: 500; }
+    .task .meta { font-size: 0.8em; color: #666; margin-top: 0.3rem; display: flex; gap: 0.8rem; flex-wrap: wrap; }
+    .pri-hi { color: #c62828; font-weight: bold; }
+    .pri-md { color: #ef6c00; }
+    .pri-lo { color: #2e7d32; }
+    details summary { cursor: pointer; font-size: 0.85em; color: #555; }
+    .divider { border: none; border-top: 1px solid #eee; margin: 1.2rem 0; }
+    .small { font-size: 0.85em; }
   </style>
 </head>
 <body>
   <h1>proc2</h1>
-  <form hx-post="/tasks" hx-target="#tasks" hx-swap="outerHTML" hx-on::after-request="this.reset()">
-    <input type="text" name="title" placeholder="title" required>
-    <input type="text" name="description" placeholder="description">
-    <button type="submit">add</button>
+
+  <div class="topbar">
+    <div class="lists">
+      <strong>lists:</strong>
+      {% for l in lists %}
+        <a href="/?list={{ l.name }}" class="{% if l.name == current_list.name %}active{% endif %}">{{ l.name }}</a>
+      {% endfor %}
+    </div>
+    <form action="/lists" method="post" class="inline">
+      <input type="text" name="name" placeholder="new list" required>
+      <button>+ list</button>
+    </form>
+    {% if current_list.name != 'default' %}
+      <form action="/lists/{{ current_list.name }}/delete" method="post" class="inline">
+        <button class="small">delete list</button>
+      </form>
+    {% endif %}
+  </div>
+
+  <form hx-post="/tasks" hx-target="#tasks-wrap" hx-swap="outerHTML" hx-on::after-request="this.reset()">
+    <input type="hidden" name="list" value="{{ current_list.name }}">
+    <input class="grow" type="text" name="description" placeholder="new task description" required>
+    <select name="priority">
+      {% for p in PRIORITIES %}<option value="{{ p }}">{{ p }}</option>{% endfor %}
+    </select>
+    <input type="text" name="project" placeholder="project (optional)">
+    <button>add</button>
   </form>
+
+  <hr class="divider">
+
   {% include "_tasks.html" %}
 </body>
 </html>

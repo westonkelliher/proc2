@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+<head>
+  <title>notes — {{ t.description }}</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 760px; margin: 2rem auto; padding: 0 1rem; }
+    textarea { width: 100%; min-height: 360px; font-family: ui-monospace, monospace; padding: 0.6rem; }
+    .bar { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.6rem; }
+    a { color: #0366d6; }
+  </style>
+</head>
+<body>
+  <div class="bar">
+    <h2>{{ t.description }}</h2>
+    <a href="/?list={{ list_name }}">← back</a>
+  </div>
+  <p class="small">list: <em>{{ list_name }}</em> · stage: {{ t.stage }} · priority: {{ t.priority }}{% if t.project %} · project: {{ t.project }}{% endif %}</p>
+  <form action="/tasks/{{ t.id }}/notes" method="post">
+    <textarea name="notes" placeholder="process notes…">{{ t.notes }}</textarea>
+    <p><button>save</button></p>
+  </form>
+</body>
+</html>
