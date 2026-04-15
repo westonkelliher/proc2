@@ -1,0 +1,10 @@
+<ul id="tasks">
+  {% for t in tasks %}
+  <li>
+    <strong>{{ t.title }}</strong>
+    {% if t.description %}<span class="desc">— {{ t.description }}</span>{% endif %}
+  </li>
+  {% else %}
+  <li class="desc">no tasks yet</li>
+  {% endfor %}
+</ul>
