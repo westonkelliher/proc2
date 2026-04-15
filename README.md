@@ -3,30 +3,33 @@
 Personal task/project workbook. Successor to `~/content/proc/{proc,overviews}`.
 Local web app: FastAPI + HTMX + Postgres.
 
-## Status
+## Status (at ToW)
 
-MVP in progress. Currently: minimal FastAPI hello-world, Postgres running in
-Docker, no schema yet. Building end-to-end skeleton before any real design.
+MVP in progress. Currently: FastAPI app with async Postgres connection
+(lifespan-managed), first migration (tasks) created, no templates yet.
 
 ## Stack
 
 - **Backend**: FastAPI (Python 3.12), managed with `uv`
 - **DB**: Postgres 16 in Docker (`docker-compose.yml`), port **5433**
-- **Migrations**: `dbmate` (migrations will live in `./migrations/`)
+- **Migrations**: `dbmate` (migrations live in `./db/migrations/`)
 - **Frontend**: server-rendered Jinja2 + HTMX (not wired up yet)
 
 ## Layout
 
 ```
 proc2/
-├── docker-compose.yml    # postgres service (named volume: proc2-db-data)
+├── docker-compose.yml    # postgres (bind mount: ./pgdata)
 ├── pyproject.toml        # uv-managed deps
-├── .env                  # DATABASE_URL + dbmate paths (gitignored)
+├── start.sh              # kill + restart uvicorn on :8011
+├── .env                  # DATABASE_URL (gitignored)
 ├── app/
 │   ├── __init__.py
-│   ├── main.py           # FastAPI app
+│   ├── main.py           # FastAPI app, async pg conn via lifespan
 │   └── templates/        # (not yet created)
-└── migrations/           # (not yet created — dbmate)
+└── db/
+    └── migrations/       # dbmate
+        └── 20260415014419_create_tasks.sql
 ```
 
 ## Dev loop
@@ -36,12 +39,18 @@ proc2/
 sudo docker compose up -d
 
 # run the app
-uv run uvicorn app.main:app --reload --port 8000
-# → http://localhost:8000
+uv run uvicorn app.main:app --reload --port 8011   # or ./start.sh
+# → http://localhost:8011
 ```
 
 `DATABASE_URL` in `.env`:
 `postgres://proc2:proc2@localhost:5433/proc2?sslmode=disable`
+
+
+## open a file in the editor
+`cursor <file>`
+- do this when you reference a file that the user needs to edit
+
 
 ## Context for next session
 
@@ -49,6 +58,9 @@ uv run uvicorn app.main:app --reload --port 8000
 - Design intentionally deferred. Current approach: get the thinnest possible
   frontend → backend → DB slice working, *then* design the data model.
 - Source brief + glossary: `~/responses/proc2-index.md`
-- Origin notes: top block of `~/content/proc/proc`
-- Operator prefers walking through changes one step at a time (Rod mode —
-  read-only Claude that guides but doesn't write source).
+- User notes: top block of `~/content/proc/proc`
+- Operator prefers walking through changes one step at a time
+- Install dependencies yourself
+
+
+# Appendended notes
