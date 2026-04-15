@@ -32,6 +32,7 @@
 </head>
 <body>
   <h1>proc2</h1>
+  <p class="small"><a href="/">tasks</a> · <a href="/projects">projects</a></p>
 
   <div class="topbar">
     <div class="lists">
@@ -57,7 +58,6 @@
     <select name="priority">
       {% for p in PRIORITIES %}<option value="{{ p }}">{{ p }}</option>{% endfor %}
     </select>
-    <input type="text" name="project" placeholder="project (optional)">
     <button>add</button>
   </form>
 

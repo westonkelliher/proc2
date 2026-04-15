@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+<head>
+  <title>proc2 — projects</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 760px; margin: 2rem auto; padding: 0 1rem; color: #222; }
+    h1 { margin-bottom: 0.2rem; }
+    .small { font-size: 0.85em; }
+    form { display: flex; gap: 0.4rem; flex-wrap: wrap; margin: 1rem 0; }
+    input[type=text] { padding: 0.35rem; font: inherit; }
+    input.grow { flex: 1; min-width: 200px; }
+    button { padding: 0.35rem 0.7rem; font: inherit; cursor: pointer; }
+    .project { border: 1px solid #ddd; border-radius: 4px; padding: 0.6rem 0.8rem; margin: 0.4rem 0; background: #fafafa; }
+    .project a { color: #000; text-decoration: none; font-weight: 500; }
+    .project .desc { color: #666; font-size: 0.9em; }
+    hr { border: none; border-top: 1px solid #eee; margin: 1rem 0; }
+  </style>
+</head>
+<body>
+  <h1>projects</h1>
+  <p class="small"><a href="/">tasks</a> · <a href="/projects">projects</a></p>
+
+  <form action="/projects" method="post">
+    <input class="grow" type="text" name="name" placeholder="new project name" required>
+    <input class="grow" type="text" name="description" placeholder="description (optional)">
+    <button>add</button>
+  </form>
+
+  <hr>
+
+  {% for p in projects %}
+    <div class="project">
+      <a href="/projects/{{ p.id }}">{{ p.name }}</a>
+      {% if p.description %}<div class="desc">{{ p.description }}</div>{% endif %}
+    </div>
+  {% else %}
+    <p class="small">no projects yet.</p>
+  {% endfor %}
+</body>
+</html>

@@ -50,14 +50,14 @@ async def get_list(conn, name: str):
 async def fetch_tasks(conn, list_id: int):
     async with conn.cursor() as cur:
         await cur.execute(
-            """select id, description, stage, priority, project, notes, position
+            """select id, description, stage, priority, notes, position
                from tasks where list_id = %s order by position, id""",
             (list_id,),
         )
         return [
             {
                 "id": r[0], "description": r[1], "stage": r[2], "priority": r[3],
-                "project": r[4], "notes": r[5], "position": r[6],
+                "notes": r[4], "position": r[5],
             }
             for r in await cur.fetchall()
         ]
@@ -66,7 +66,7 @@ async def fetch_tasks(conn, list_id: int):
 async def get_task(conn, task_id: int):
     async with conn.cursor() as cur:
         await cur.execute(
-            """select id, list_id, description, stage, priority, project, notes, position
+            """select id, list_id, description, stage, priority, notes, position
                from tasks where id = %s""",
             (task_id,),
         )
@@ -75,7 +75,7 @@ async def get_task(conn, task_id: int):
             raise HTTPException(404, "task not found")
         return {
             "id": r[0], "list_id": r[1], "description": r[2], "stage": r[3],
-            "priority": r[4], "project": r[5], "notes": r[6], "position": r[7],
+            "priority": r[4], "notes": r[5], "position": r[6],
         }
 
 
@@ -128,7 +128,6 @@ async def new_task(
     description: str = Form(...),
     list: str = Form("default"),
     priority: str = Form("none"),
-    project: str = Form(""),
 ):
     conn = app.state.conn
     lst = await get_list(conn, list)
@@ -136,9 +135,9 @@ async def new_task(
         await cur.execute("select coalesce(max(position), -1) + 1 from tasks where list_id = %s", (lst["id"],))
         pos = (await cur.fetchone())[0]
         await cur.execute(
-            """insert into tasks (list_id, description, priority, project, position)
-               values (%s, %s, %s, %s, %s)""",
-            (lst["id"], description, priority, project, pos),
+            """insert into tasks (list_id, description, priority, position)
+               values (%s, %s, %s, %s)""",
+            (lst["id"], description, priority, pos),
         )
     return await render_tasks(request, list)
 
@@ -149,14 +148,13 @@ async def edit_task(
     task_id: int,
     description: str = Form(...),
     priority: str = Form("none"),
-    project: str = Form(""),
 ):
     t = await get_task(app.state.conn, task_id)
     async with app.state.conn.cursor() as cur:
         await cur.execute(
-            """update tasks set description = %s, priority = %s, project = %s, updated_at = now()
+            """update tasks set description = %s, priority = %s, updated_at = now()
                where id = %s""",
-            (description, priority, project, task_id),
+            (description, priority, task_id),
         )
     async with app.state.conn.cursor() as cur:
         await cur.execute("select name from lists where id = %s", (t["list_id"],))
@@ -254,3 +252,76 @@ async def save_notes(task_id: int, notes: str = Form("")):
         )
         name = (await cur.fetchone())[0]
     return RedirectResponse(f"/?list={name}", status_code=303)
+
+
+# ---- projects ----
+
+async def fetch_projects(conn):
+    async with conn.cursor() as cur:
+        await cur.execute(
+            "select id, name, description, notes from projects order by name"
+        )
+        return [
+            {"id": r[0], "name": r[1], "description": r[2], "notes": r[3]}
+            for r in await cur.fetchall()
+        ]
+
+
+async def get_project(conn, project_id: int):
+    async with conn.cursor() as cur:
+        await cur.execute(
+            "select id, name, description, notes from projects where id = %s",
+            (project_id,),
+        )
+        r = await cur.fetchone()
+        if not r:
+            raise HTTPException(404, "project not found")
+        return {"id": r[0], "name": r[1], "description": r[2], "notes": r[3]}
+
+
+@app.get("/projects")
+async def list_projects(request: Request):
+    projects = await fetch_projects(app.state.conn)
+    return templates.TemplateResponse(
+        request, "projects.html", {"projects": projects}
+    )
+
+
+@app.post("/projects")
+async def new_project(name: str = Form(...), description: str = Form("")):
+    async with app.state.conn.cursor() as cur:
+        await cur.execute(
+            "insert into projects (name, description) values (%s, %s) on conflict do nothing",
+            (name.strip(), description),
+        )
+    return RedirectResponse("/projects", status_code=303)
+
+
+@app.get("/projects/{project_id}")
+async def view_project(request: Request, project_id: int):
+    p = await get_project(app.state.conn, project_id)
+    return templates.TemplateResponse(request, "project.html", {"p": p})
+
+
+@app.post("/projects/{project_id}/edit")
+async def edit_project(
+    project_id: int,
+    name: str = Form(...),
+    description: str = Form(""),
+    notes: str = Form(""),
+):
+    await get_project(app.state.conn, project_id)
+    async with app.state.conn.cursor() as cur:
+        await cur.execute(
+            """update projects set name = %s, description = %s, notes = %s, updated_at = now()
+               where id = %s""",
+            (name.strip(), description, notes, project_id),
+        )
+    return RedirectResponse(f"/projects/{project_id}", status_code=303)
+
+
+@app.post("/projects/{project_id}/delete")
+async def delete_project(project_id: int):
+    async with app.state.conn.cursor() as cur:
+        await cur.execute("delete from projects where id = %s", (project_id,))
+    return RedirectResponse("/projects", status_code=303)

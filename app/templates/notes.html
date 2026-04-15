@@ -14,7 +14,7 @@
     <h2>{{ t.description }}</h2>
     <a href="/?list={{ list_name }}">← back</a>
   </div>
-  <p class="small">list: <em>{{ list_name }}</em> · stage: {{ t.stage }} · priority: {{ t.priority }}{% if t.project %} · project: {{ t.project }}{% endif %}</p>
+  <p class="small">list: <em>{{ list_name }}</em> · stage: {{ t.stage }} · priority: {{ t.priority }}</p>
   <form action="/tasks/{{ t.id }}/notes" method="post">
     <textarea name="notes" placeholder="process notes…">{{ t.notes }}</textarea>
     <p><button>save</button></p>

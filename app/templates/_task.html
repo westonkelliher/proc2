@@ -25,7 +25,6 @@
 
   <div class="meta">
     <span>priority: <span class="pri-{{ t.priority }}">{{ t.priority }}</span></span>
-    {% if t.project %}<span>project: <em>{{ t.project }}</em></span>{% endif %}
 
     <form class="inline" hx-post="/tasks/{{ t.id }}/move" hx-target="#tasks-wrap" hx-swap="outerHTML">
       <label>move to:

@@ -6,7 +6,6 @@
         <option value="{{ p }}" {% if p == t.priority %}selected{% endif %}>{{ p }}</option>
       {% endfor %}
     </select>
-    <input type="text" name="project" value="{{ t.project }}" placeholder="project">
     <button>save</button>
     <button type="button" hx-get="/tasks/{{ t.id }}/row" hx-target="#task-{{ t.id }}" hx-swap="outerHTML">cancel</button>
   </form>
