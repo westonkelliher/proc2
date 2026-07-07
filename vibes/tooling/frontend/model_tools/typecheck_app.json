@@ -1,0 +1,10 @@
+{
+  "name": "Typecheck",
+  "description": "Runs `tsc --noEmit` over the whole app (frontend files, iface clients, server, backend modules) and returns the errors, if any. Run this after writing the frontend files and fix every error before submitting.",
+  "input_schema": {
+    "type": "object",
+    "properties": {},
+    "additionalProperties": false
+  },
+  "strict": true
+}

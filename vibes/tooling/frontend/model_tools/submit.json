@@ -1,0 +1,10 @@
+{
+  "name": "Submit",
+  "description": "Finalize the frontend files as the completed frontend. This ends the build — no further edits may be made. Fails if any 'TODO: implement' stubs remain in the files or if the typecheck fails.",
+  "input_schema": {
+    "type": "object",
+    "properties": {},
+    "additionalProperties": false
+  },
+  "strict": true
+}

@@ -1,0 +1,31 @@
+{
+  "name": "BuildErrors",
+  "description": "Report that the frontend specification cannot be translated into correct code. This ends the build — no further edits may be made. Report ALL build errors found, not just the first. Use only after determining the spec is invalid or self-contradictory — not for recoverable uncertainty.",
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "errors": {
+        "type": "array",
+        "description": "All build errors found in the spec",
+        "items": {
+          "type": "object",
+          "properties": {
+            "reason": {
+              "type": "string",
+              "description": "Why this part of the spec cannot be translated into correct code"
+            },
+            "spec_location": {
+              "type": "string",
+              "description": "Which part of the spec is at fault, e.g. a component or @protos line. Empty string if the error cannot be pinned to one location."
+            }
+          },
+          "required": ["reason", "spec_location"],
+          "additionalProperties": false
+        }
+      }
+    },
+    "required": ["errors"],
+    "additionalProperties": false
+  },
+  "strict": true
+}

@@ -1,0 +1,20 @@
+{
+  "name": "Edit",
+  "description": "Performs an exact string replacement in the implementation file. old_string must match the file's current contents exactly (including whitespace) and must be unique in the file — include surrounding context to disambiguate.",
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "old_string": {
+        "type": "string",
+        "description": "Exact text to replace; must occur exactly once in the file"
+      },
+      "new_string": {
+        "type": "string",
+        "description": "Text to replace it with"
+      }
+    },
+    "required": ["old_string", "new_string"],
+    "additionalProperties": false
+  },
+  "strict": true
+}

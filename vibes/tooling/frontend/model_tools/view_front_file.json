@@ -1,0 +1,14 @@
+{
+  "name": "ViewFile",
+  "description": "Returns the current contents of one of the frontend files (frontend.tsx or theme.ts).",
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "file": {
+        "type": "string",
+        "description": "Which frontend file to view, e.g. \"frontend.tsx\""
+      }
+    },
+    "required": ["file"]
+  }
+}

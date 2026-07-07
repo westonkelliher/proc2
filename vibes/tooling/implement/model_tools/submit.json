@@ -1,0 +1,10 @@
+{
+  "name": "Submit",
+  "description": "Finalize the implementation file as the completed module. This ends the build — no further edits may be made. Fails if any 'TODO: implement' stubs remain in the file.",
+  "input_schema": {
+    "type": "object",
+    "properties": {},
+    "additionalProperties": false
+  },
+  "strict": true
+}

@@ -1,0 +1,20 @@
+{
+  "name": "WriteFile",
+  "description": "Replaces the full contents of one of the frontend files (frontend.tsx or theme.ts).",
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "file": {
+        "type": "string",
+        "description": "Which frontend file to write, e.g. \"frontend.tsx\""
+      },
+      "content": {
+        "type": "string",
+        "description": "The complete new contents of the file"
+      }
+    },
+    "required": ["file", "content"],
+    "additionalProperties": false
+  },
+  "strict": true
+}

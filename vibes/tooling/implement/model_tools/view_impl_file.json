@@ -1,0 +1,8 @@
+{
+  "name": "ViewFile",
+  "description": "Returns the current contents of the implementation file.",
+  "input_schema": {
+    "type": "object",
+    "properties": {}
+  }
+}
