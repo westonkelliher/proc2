@@ -31,10 +31,12 @@ interface _interface {
     // -- persistence (called by the server layer, see @persist) -- //
 
     import_state(data: WorkbookData);
-    /* .effect: replaces the entire module state (tasks and next_id) with data; setup proto behind server persistence */
+    /* .effect: replaces the entire module state (tasks and next_id) with a deep copy of data; setup proto behind server persistence */
+    /* .details: copies so that no later caller-side mutation of data can reach module state */
 
     export_state(): WorkbookData;
-    /* .yield: the entire module state, suitable to pass back into import_state */
+    /* .yield: a deep copy of the entire module state, suitable to pass back into import_state */
+    /* .details: the copy shares no structure with module state — later effects must not alter an exported snapshot */
 
     // -- task crud -- //
 

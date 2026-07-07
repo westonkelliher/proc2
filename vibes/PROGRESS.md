@@ -11,9 +11,11 @@ vibes/app/. App port: 4117.
 ## State
 - [x] tooling copied from grim_ide + adapted (see tooling/NOTE.md)
 - [x] specs: workbook.ts (17 protos), projects.ts (8), frontend.md
-- [ ] pregen both modules
-- [ ] implement both modules (fable) + smoke-check via checks/
-- [ ] prefrontend (npm install into app/)
+- [x] pregen both modules
+- [x] implement both modules (fable) + smoke-check via checks/ritual.ts
+      (round 1 caught export_state leaking live references in Projects —
+      strengthened both specs to require deep copies, re-implemented)
+- [x] prefrontend (npm install into app/)
 - [ ] frontend build (fable)
 - [ ] run app on :4117, verify flows + persistence across restart
 
