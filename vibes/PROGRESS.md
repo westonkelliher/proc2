@@ -16,8 +16,15 @@ vibes/app/. App port: 4117.
       (round 1 caught export_state leaking live references in Projects —
       strengthened both specs to require deep copies, re-implemented)
 - [x] prefrontend (npm install into app/)
-- [ ] frontend build (fable)
-- [ ] run app on :4117, verify flows + persistence across restart
+- [x] frontend build (fable) — typecheck clean; all 5 components, hotkeys,
+      30s reminder poll, zero color literals outside theme.ts
+- [x] run app on :4117 — verified over HTTP: quick capture, workboard lists,
+      stage changes, due reminders + defer, projects + labels, err-shaped
+      errors; persistence + next_id continuity across server restarts
+
+DONE. App is left running on :4117 with empty data.
+Possible next steps: frontend iterate pass (drag reorder, mobile PWA/manifest),
+reminder notifications, weekly review view (transient filtering exists in data).
 
 ## Notes
 - persistence: modules stay pure/deterministic; the generated server
