@@ -26,12 +26,12 @@ var tasks: Array<Task> = [];
 var next_id: number = 1;
 
 // -- helpers -- //
-function findTask(id: number): Task | undefined {
-    return tasks.find(t => t.id === id);
-}
-
 function copyTask(t: Task): Task {
     return { ...t };
+}
+
+function findTask(id: number): Task | undefined {
+    return tasks.find(t => t.id === id);
 }
 
 // -- interface -- //
@@ -62,12 +62,14 @@ export const _module: _interface = {
         next_id = args.data.next_id;
         return { ok: true };
     },
-    /* .effect: replaces the entire module state (tasks and next_id) with data; setup proto behind server persistence */
+    /* .effect: replaces the entire module state (tasks and next_id) with a deep copy of data; setup proto behind server persistence */
+    /* .details: copies so that no later caller-side mutation of data can reach module state */
 
     export_state(args: null): YieldResult<WorkbookData> {
         return { ok: { tasks: tasks.map(copyTask), next_id: next_id } };
     },
-    /* .yield: the entire module state, suitable to pass back into import_state */
+    /* .yield: a deep copy of the entire module state, suitable to pass back into import_state */
+    /* .details: the copy shares no structure with module state — later effects must not alter an exported snapshot */
 
     create_task(args: {text: string, list: string, transient: boolean, remind_at: string}): EffectResult {
         const task: Task = {
@@ -82,13 +84,7 @@ export const _module: _interface = {
             remind_at: args.remind_at,
         };
         next_id = next_id + 1;
-        // append to the end of the named list: insert after the last task of
-        // that list, or at the end of storage when the list has no tasks yet
-        let insertAt = tasks.length;
-        for (let i = tasks.length - 1; i >= 0; i--) {
-            if (tasks[i].list === args.list) { insertAt = i + 1; break; }
-        }
-        tasks.splice(insertAt, 0, task);
+        tasks.push(task);
         return { ok: true };
     },
     /* .effect: appends a new task to the end of the named list, assigning it id next_id and incrementing next_id; the new task has stage "todo", priority 0, empty project and notes */
@@ -97,7 +93,7 @@ export const _module: _interface = {
     read_task(args: {id: number}): YieldResult<Task> {
         const task = findTask(args.id);
         if (task === undefined) return { err: "no task has id " + args.id };
-        return { ok: copyTask(task) };
+        return { ok: task };
     },
     /* .yield: the task with that id */
     /* .errors: no task has that id */
@@ -170,33 +166,32 @@ export const _module: _interface = {
     /* .errors: no task has that id */
 
     delete_task(args: {id: number}): EffectResult {
-        const idx = tasks.findIndex(t => t.id === args.id);
-        if (idx === -1) return { err: "no task has id " + args.id };
-        tasks.splice(idx, 1);
+        const pos = tasks.findIndex(t => t.id === args.id);
+        if (pos === -1) return { err: "no task has id " + args.id };
+        tasks.splice(pos, 1);
         return { ok: true };
     },
     /* .effect: removes the task entirely */
     /* .errors: no task has that id */
 
     move_task(args: {id: number, list: string, index: number}): EffectResult {
-        const idx = tasks.findIndex(t => t.id === args.id);
-        if (idx === -1) return { err: "no task has id " + args.id };
-        const [task] = tasks.splice(idx, 1);
+        const pos = tasks.findIndex(t => t.id === args.id);
+        if (pos === -1) return { err: "no task has id " + args.id };
+        const task = tasks[pos];
+        tasks.splice(pos, 1);
         task.list = args.list;
-        // find the global position where the task becomes the index-th task
-        // of the named list; past the end means after the list's last task
-        let insertAt = tasks.length;
-        let seen = 0;
-        let lastOfList = -1;
+        // global positions of the target list's tasks after removal
+        const listPositions: Array<number> = [];
         for (let i = 0; i < tasks.length; i++) {
-            if (tasks[i].list === args.list) {
-                if (seen === args.index) { insertAt = i; break; }
-                seen++;
-                lastOfList = i;
-            }
+            if (tasks[i].list === args.list) listPositions.push(i);
         }
-        if (insertAt === tasks.length && lastOfList !== -1 && args.index >= seen) {
-            insertAt = lastOfList + 1;
+        let insertAt: number;
+        if (args.index < listPositions.length && args.index >= 0) {
+            insertAt = listPositions[args.index];
+        } else if (listPositions.length > 0) {
+            insertAt = listPositions[listPositions.length - 1] + 1;
+        } else {
+            insertAt = tasks.length;
         }
         tasks.splice(insertAt, 0, task);
         return { ok: true };
@@ -205,7 +200,7 @@ export const _module: _interface = {
     /* .errors: no task has that id */
 
     get_list(args: {name: string}): YieldResult<Array<Task>> {
-        return { ok: tasks.filter(t => t.list === args.name).map(copyTask) };
+        return { ok: tasks.filter(t => t.list === args.name) };
     },
     /* .yield: the tasks whose list is name, in stored order; [] when no task names the list */
 
@@ -219,18 +214,17 @@ export const _module: _interface = {
     /* .yield: distinct list names that currently have at least one task, in first-appearance order */
 
     due_reminders(args: {now: string}): YieldResult<Array<Task>> {
-        const due = tasks
-            .filter(t => t.remind_at !== ""
-                && t.remind_at <= args.now
-                && (t.stage === "todo" || t.stage === "in-progress"))
-            .map(copyTask);
+        const due = tasks.filter(t =>
+            t.remind_at !== "" &&
+            t.remind_at <= args.now &&
+            (t.stage === "todo" || t.stage === "in-progress"));
         due.sort((a, b) => a.remind_at < b.remind_at ? -1 : a.remind_at > b.remind_at ? 1 : 0);
         return { ok: due };
     },
     /* .yield: tasks with remind_at nonempty and at or before now (plain string compare), whose stage is "todo" or "in-progress", sorted by remind_at ascending */
 
     project_tasks(args: {project: string}): YieldResult<Array<Task>> {
-        return { ok: tasks.filter(t => t.project === args.project).map(copyTask) };
+        return { ok: tasks.filter(t => t.project === args.project) };
     },
     /* .yield: tasks whose project label equals project exactly, in stored order */
 
